@@ -103,7 +103,23 @@ trackpose/
    - Backend: `trackpose-backend` (Docker)
    - Media Service: `trackpose-media` (Docker)
 
-2. **Set Environment Variables**:
+2. **Backend Service Configuration**:
+   
+   **Build Command**:
+   ```bash
+   cd services/backend && npm ci && npm run build
+   ```
+   
+   **Start Command**:
+   ```bash
+   cd services/backend && npx prisma generate && node dist/index.js
+   ```
+   
+   **Important**: Ensure your backend server:
+   - Listens on `process.env.PORT` (Render assigns this dynamically)
+   - Binds to `0.0.0.0` (not just `localhost`)
+
+3. **Set Environment Variables**:
    ```bash
    # Backend
    DATABASE_URL=<render-mysql-url>
@@ -117,13 +133,13 @@ trackpose/
    S3_BUCKET=<bucket-name>
    ```
 
-3. **Deploy**:
+4. **Deploy**:
    ```bash
    git push origin main
    # Render auto-deploys from render.yaml
    ```
 
-4. **Run Migrations**:
+5. **Run Migrations**:
    ```bash
    cd services/backend
    DATABASE_URL=<render-url> npx prisma migrate deploy
