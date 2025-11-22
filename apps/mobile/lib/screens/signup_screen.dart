@@ -7,9 +7,7 @@ import '../providers/auth_provider.dart';
 import '../config/app_theme.dart';
 
 class SignupScreen extends ConsumerStatefulWidget {
-  final String? role;
-  
-  const SignupScreen({super.key, this.role});
+  const SignupScreen({super.key});
 
   @override
   ConsumerState<SignupScreen> createState() => _SignupScreenState();
@@ -77,47 +75,16 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final auth = ref.read(authProvider.notifier);
-    // Determine role from widget parameter or default to PARENT
-    final userRole = widget.role?.toUpperCase() ?? 'PARENT';
-    
-    print('🚀 SIGNUP: Starting signup for ${_emailCtrl.text} with role $userRole');
-    
-    // Show loading state
-    setState(() {});
-    
     try {
       await auth.signup(
         fullName: _nameCtrl.text.trim(),
         email: _emailCtrl.text.trim(),
         password: _passCtrl.text,
-        role: userRole,
       );
 
-      print('✅ SIGNUP: Signup successful!');
-      
       if (!mounted) return;
-      
-      // Show success message before navigating
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('✅ Account created! Redirecting to verification...'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 2),
-        ),
-      );
-      
-      print('🔄 SIGNUP: Navigating to /email-verification');
-      
-      // Navigate to verification screen immediately
-      await Future.delayed(const Duration(milliseconds: 800));
-      if (!mounted) return;
-      
-      print('📍 SIGNUP: Executing context.go("/email-verification")');
       context.go('/email-verification');
-      print('📍 SIGNUP: Navigation command executed');
-      
     } catch (e) {
-      print('❌ SIGNUP ERROR: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -188,30 +155,20 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     ),
                     const SizedBox(height: AppSpacing.l),
 
-                    // Logo - Gradient Icon
+                    // Logo
                     Center(
                       child: Container(
                         width: 100,
                         height: 100,
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: AppColors.primaryGradient,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primaryPurple.withValues(alpha: 0.4),
-                              blurRadius: 30,
-                              spreadRadius: 5,
-                            ),
-                          ],
+                          color: Colors.white.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(AppRadius.large),
+                          boxShadow: [AppShadows.card],
                         ),
                         child: const Icon(
-                          Icons.person_add_rounded,
-                          size: 50,
-                          color: Colors.white,
+                          Icons.person_add_outlined,
+                          size: 56,
+                          color: AppColors.primaryPurple,
                         ),
                       ),
                     ),
@@ -304,7 +261,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         ],
                       ),
                       const SizedBox(height: AppSpacing.xs),
-                      Text(
+                      const Text(
                         'Use 8+ characters with a mix of letters, numbers & symbols',
                         style: TextStyle(
                           fontSize: AppTypography.small,
@@ -346,7 +303,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     const SizedBox(height: AppSpacing.l),
 
                     // Terms Text
-                    Text(
+                    const Text(
                       'By creating an account, you agree to our Terms of Service and Privacy Policy',
                       style: TextStyle(
                         fontSize: AppTypography.small,

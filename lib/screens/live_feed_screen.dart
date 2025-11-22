@@ -2,52 +2,77 @@
 
 // TODO: Add assets to pubspec.yaml: assets/designs/live_thumb.png, assets/designs/icon_play_area.png
 // TODO: Integrate live video streaming, MediaPipe/TFLite AI processing and backend endpoints (Render-managed MySQL & object storage). Secure tokens in flutter_secure_storage.
-// TODO: Move color/spacing tokens to theme.dart
 
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-// Design Tokens - TODO: Move to theme.dart
-const Color kPageBgGradientStart = Color(0xFFE6F0FF);
-const Color kPageBgGradientEnd = Color(0xFFFFF0E6);
+// ============================================================================
+// DESIGN TOKENS - TODO: Move to theme.dart
+// ============================================================================
+
+// Colors
+const Color kBackgroundGradientStart = Color(0xFFE6F0FF);
+const Color kBackgroundGradientEnd = Color(0xFFFFF0E6);
 const Color kHeadlineColor = Color(0xFF0F1724);
 const Color kSubtextColor = Color(0xFF6B7280);
-const Color kCardBackgroundWhite = Color(0xFFFFFFFF);
+const Color kCardBackground = Color(0xFFFFFFFF);
 const Color kLiveBadgeBg = Color(0xFFE8FBEE);
-const Color kLiveDotColor = Color(0xFF00C853);
+const Color kLiveBadgeDot = Color(0xFF00C853);
+const Color kPrimaryGradientStart = Color(0xFF7A3FF2);
+const Color kPrimaryGradientEnd = Color(0xFFFF2E7A);
 const Color kAccentBlue = Color(0xFF2B9CFF);
-const Color kChipYellow = Color(0xFFFFC857);
-const Color kChipBlue = Color(0xFF4AA3FF);
-const Color kChipPurple = Color(0xFFA76BFF);
+const Color kFeatureChipYellow = Color(0xFFFFC857);
+const Color kFeatureChipBlue = Color(0xFF4AA3FF);
+const Color kFeatureChipPurple = Color(0xFFA76BFF);
 const Color kTimeBadgeBg = Color(0xFF0F1724);
 const Color kInputBg = Color(0xFFF3F4F6);
-const Color kInsightsCardBg = Color(0xFFE8F5FF);
 
-const List<Color> kPrimaryGradientColors = [
-  Color(0xFF7A3FF2),
-  Color(0xFFFF2E7A)
-];
-
-const double kPageHorizontalPadding = 20.0;
-const double kMaxContentWidth = 920.0;
-const double kCardRadius = 16.0;
+// Spacing
 const double kGapXS = 8.0;
 const double kGapS = 12.0;
 const double kGapM = 20.0;
 const double kGapL = 28.0;
+const double kPagePadding = 20.0;
 
+// Radii
+const double kCardRadius = 16.0;
+const double kCardRadiusLarge = 20.0;
+const double kInputRadius = 12.0;
+
+// Shadows
 const BoxShadow kCardShadow = BoxShadow(
   color: Color.fromRGBO(15, 23, 36, 0.06),
   blurRadius: 36,
   offset: Offset(0, 8),
 );
 
-// Mock Data Models
+// Font sizes
+const double kHeadlineSize = 30.0;
+const double kSectionHeadingSize = 18.0;
+const double kBodySize = 16.0;
+
+// ============================================================================
+// MOCK DATA
+// ============================================================================
+
+class CameraZone {
+  final String id;
+  final String name;
+  final String icon;
+
+  const CameraZone({
+    required this.id,
+    required this.name,
+    required this.icon,
+  });
+}
+
 class FeatureChip {
   final String label;
   final Color color;
 
-  FeatureChip({required this.label, required this.color});
+  const FeatureChip({required this.label, required this.color});
 }
 
 class TimelineItem {
@@ -57,7 +82,7 @@ class TimelineItem {
   final String description;
   final String emoji;
 
-  TimelineItem({
+  const TimelineItem({
     required this.id,
     required this.time,
     required this.title,
@@ -67,30 +92,165 @@ class TimelineItem {
 }
 
 class AlertSetting {
+  final String id;
   final String title;
   final String description;
   bool enabled;
 
   AlertSetting({
+    required this.id,
     required this.title,
     required this.description,
     required this.enabled,
   });
 }
 
-class StatusData {
+class StatusMetric {
   final String label;
-  final String value;
-  final double progress;
+  final double value;
+  final String displayValue;
   final Color color;
 
-  StatusData({
+  const StatusMetric({
     required this.label,
     required this.value,
-    required this.progress,
+    required this.displayValue,
     required this.color,
   });
 }
+
+class InsightItem {
+  final String title;
+  final String description;
+
+  const InsightItem({required this.title, required this.description});
+}
+
+const List<CameraZone> kCameraZones = [
+  CameraZone(id: 'play_area', name: 'Play Area', icon: '🎮'),
+  CameraZone(id: 'reading_area', name: 'Reading Area', icon: '📚'),
+  CameraZone(id: 'nap_zone', name: 'Nap Zone', icon: '😴'),
+  CameraZone(id: 'outside', name: 'Outside', icon: '🌳'),
+];
+
+const List<FeatureChip> kLiveFeatureChips = [
+  FeatureChip(label: 'Smiling', color: kFeatureChipYellow),
+  FeatureChip(label: 'Calm', color: kFeatureChipBlue),
+  FeatureChip(label: 'Group Activity', color: kFeatureChipPurple),
+];
+
+const List<TimelineItem> kTimelineItems = [
+  TimelineItem(
+    id: '1',
+    time: '09:15',
+    title: 'Arrived happy',
+    description: 'Emma arrived with a big smile, excited to start the day',
+    emoji: '😊',
+  ),
+  TimelineItem(
+    id: '2',
+    time: '10:05',
+    title: 'Group play started',
+    description: 'Happy interaction during group activity',
+    emoji: '👫',
+  ),
+  TimelineItem(
+    id: '3',
+    time: '11:15',
+    title: 'Snack time',
+    description: 'Calm and peaceful during meal',
+    emoji: '🍎',
+  ),
+  TimelineItem(
+    id: '4',
+    time: '12:00',
+    title: 'Story time',
+    description: 'Engaged and smiling during reading',
+    emoji: '📖',
+  ),
+  TimelineItem(
+    id: '5',
+    time: '13:30',
+    title: 'Outdoor play',
+    description: 'High energy outdoor activities',
+    emoji: '⚽',
+  ),
+  TimelineItem(
+    id: '6',
+    time: '14:15',
+    title: 'Rest period',
+    description: 'Peaceful rest time',
+    emoji: '😴',
+  ),
+  TimelineItem(
+    id: '7',
+    time: '15:00',
+    title: 'Arts & crafts',
+    description: 'Creative and happy',
+    emoji: '🎨',
+  ),
+];
+
+List<AlertSetting> kAlertSettings = [
+  AlertSetting(
+    id: 'emotional_change',
+    title: 'Emotional Change',
+    description: 'Notify on mood shifts',
+    enabled: true,
+  ),
+  AlertSetting(
+    id: 'low_activity',
+    title: 'Low Activity',
+    description: 'Alert on inactivity',
+    enabled: true,
+  ),
+  AlertSetting(
+    id: 'new_events',
+    title: 'New Events',
+    description: 'Notify on new moments',
+    enabled: false,
+  ),
+];
+
+const List<StatusMetric> kStatusMetrics = [
+  StatusMetric(
+    label: 'Emotional State',
+    value: 0.8,
+    displayValue: 'Happy',
+    color: kFeatureChipYellow,
+  ),
+  StatusMetric(
+    label: 'Activity Level',
+    value: 0.6,
+    displayValue: 'Moderate',
+    color: kFeatureChipPurple,
+  ),
+  StatusMetric(
+    label: 'Social Engagement',
+    value: 0.9,
+    displayValue: 'High',
+    color: kPrimaryGradientEnd,
+  ),
+];
+
+const List<InsightItem> kTodaysInsights = [
+  InsightItem(
+    title: 'Positive social interactions',
+    description: 'Playing well with others throughout the day',
+  ),
+  InsightItem(
+    title: 'Balanced energy levels',
+    description: 'Good mix of active and calm periods',
+  ),
+  InsightItem(
+    title: 'Consistent happiness',
+    description: 'Maintained positive mood all day',
+  ),
+];
+
+// ============================================================================
+// LIVE FEED SCREEN
+// ============================================================================
 
 class LiveFeedScreen extends StatefulWidget {
   const LiveFeedScreen({super.key});
@@ -101,295 +261,98 @@ class LiveFeedScreen extends StatefulWidget {
 
 class _LiveFeedScreenState extends State<LiveFeedScreen>
     with TickerProviderStateMixin {
-  late AnimationController _cameraCardController;
+  CameraZone _selectedZone = kCameraZones[0];
+  final List<AlertSetting> _alertSettings = List.from(kAlertSettings);
+  late AnimationController _cameraFeedController;
   late AnimationController _timelineController;
-  late AnimationController _statusController;
-
-  String _selectedZone = 'Play Area';
-  final List<String> _zones = [
-    'Play Area',
-    'Reading Area',
-    'Nap Zone',
-    'Outside'
-  ];
-
-  final List<FeatureChip> _featureChips = [
-    FeatureChip(label: 'Smiling', color: kChipYellow),
-    FeatureChip(label: 'Calm', color: kChipBlue),
-    FeatureChip(label: 'Group Activity', color: kChipPurple),
-  ];
-
-  final List<TimelineItem> _timelineItems = [
-    TimelineItem(
-      id: '1',
-      time: '09:15',
-      title: 'Arrived happy',
-      description: 'Emma arrived with a big smile, excited to start the day',
-      emoji: '😊',
-    ),
-    TimelineItem(
-      id: '2',
-      time: '10:05',
-      title: 'Group play started',
-      description: 'Happy interaction during group activity',
-      emoji: '🎉',
-    ),
-    TimelineItem(
-      id: '3',
-      time: '11:15',
-      title: 'Snack time',
-      description: 'Calm and peaceful during meal',
-      emoji: '🍎',
-    ),
-    TimelineItem(
-      id: '4',
-      time: '12:00',
-      title: 'Story time',
-      description: 'Engaged and smiling during reading',
-      emoji: '📚',
-    ),
-    TimelineItem(
-      id: '5',
-      time: '13:30',
-      title: 'Outdoor play',
-      description: 'High energy outdoor activities',
-      emoji: '⚽',
-    ),
-    TimelineItem(
-      id: '6',
-      time: '14:15',
-      title: 'Rest period',
-      description: 'Peaceful rest time',
-      emoji: '😴',
-    ),
-    TimelineItem(
-      id: '7',
-      time: '15:00',
-      title: 'Arts & crafts',
-      description: 'Creative and happy',
-      emoji: '🎨',
-    ),
-  ];
-
-  final List<AlertSetting> _alertSettings = [
-    AlertSetting(
-      title: 'Emotional Change',
-      description: 'Notify on mood shifts',
-      enabled: true,
-    ),
-    AlertSetting(
-      title: 'Low Activity',
-      description: 'Alert on inactivity',
-      enabled: false,
-    ),
-    AlertSetting(
-      title: 'New Events',
-      description: 'Notify on new moments',
-      enabled: true,
-    ),
-  ];
-
-  final List<StatusData> _statusData = [
-    StatusData(
-      label: 'Emotional State',
-      value: 'Happy',
-      progress: 0.8,
-      color: kChipYellow,
-    ),
-    StatusData(
-      label: 'Activity Level',
-      value: 'Moderate',
-      progress: 0.6,
-      color: kChipPurple,
-    ),
-    StatusData(
-      label: 'Social Engagement',
-      value: 'High',
-      progress: 0.9,
-      color: const Color(0xFFFF2E7A),
-    ),
-  ];
-
-  final List<Map<String, String>> _insights = [
-    {
-      'title': 'Positive social interactions',
-      'description': 'Playing well with others throughout the day',
-    },
-    {
-      'title': 'Balanced energy levels',
-      'description': 'Good mix of active and calm periods',
-    },
-    {
-      'title': 'Consistent happiness',
-      'description': 'Maintained positive mood all day',
-    },
-  ];
+  late AnimationController _statusBarController;
 
   @override
   void initState() {
     super.initState();
-
-    _cameraCardController = AnimationController(
+    _cameraFeedController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
     );
-
     _timelineController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 400),
     );
-
-    _statusController = AnimationController(
+    _statusBarController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
 
-    _cameraCardController.forward();
-    _timelineController.forward();
-    _statusController.forward();
+    _cameraFeedController.forward();
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        _timelineController.forward();
+        _statusBarController.forward();
+      }
+    });
   }
 
   @override
   void dispose() {
-    _cameraCardController.dispose();
+    _cameraFeedController.dispose();
     _timelineController.dispose();
-    _statusController.dispose();
+    _statusBarController.dispose();
     super.dispose();
   }
 
-  Future<void> _changeZone(String zone) async {
+  Future<void> _changeZone(CameraZone zone) async {
     setState(() => _selectedZone = zone);
-    // TODO: Fetch live stream for selected zone from backend
+    // TODO: Replace with real API call to switch camera feed
     await Future.delayed(const Duration(milliseconds: 800));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Switched to $zone')),
+        SnackBar(content: Text('Switched to ${zone.name}')),
       );
     }
   }
 
-  void _toggleAlertSetting(int index) {
+  void _onThumbnailTap() {
+    showDialog(
+      context: context,
+      builder: (context) => _LiveFeedModal(
+        zone: _selectedZone,
+      ),
+    );
+  }
+
+  void _onTimelineItemTap(TimelineItem item) {
+    context.push('/session/${item.id}');
+  }
+
+  void _onToggleAlert(AlertSetting setting, bool value) {
     setState(() {
-      _alertSettings[index].enabled = !_alertSettings[index].enabled;
+      setting.enabled = value;
     });
-    // TODO: Persist alert preference to backend (Render MySQL)
+    // TODO: Persist alert preference to backend (Render-managed MySQL)
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          '${_alertSettings[index].title} alerts ${_alertSettings[index].enabled ? "enabled" : "disabled"}',
+          '${setting.title} alerts ${value ? "enabled" : "disabled"}',
         ),
       ),
     );
   }
 
-  void _showZoneSelector() {
+  void _onChipTap(FeatureChip chip) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(kCardRadiusLarge)),
       ),
-      builder: (ctx) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  'Select Camera Zone',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: kHeadlineColor,
-                  ),
-                ),
-              ),
-              ..._zones.map((zone) {
-                return ListTile(
-                  leading: Icon(
-                    Icons.videocam,
-                    color: zone == _selectedZone ? kAccentBlue : kSubtextColor,
-                  ),
-                  title: Text(zone),
-                  trailing: zone == _selectedZone
-                      ? const Icon(Icons.check, color: kAccentBlue)
-                      : null,
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _changeZone(zone);
-                  },
-                );
-              }),
-              const SizedBox(height: 16),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showThumbnailDetail() {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return Dialog(
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: AspectRatio(
-                    aspectRatio: 16 / 9,
-                    child: Container(
-                      color: Colors.grey.shade300,
-                      child: const Center(
-                        child:
-                            Icon(Icons.videocam, size: 64, color: Colors.grey),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Playing live feed...')),
-                        );
-                      },
-                      icon: const Icon(Icons.play_arrow),
-                      label: const Text('Play'),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Snapshot captured')),
-                        );
-                      },
-                      icon: const Icon(Icons.camera_alt),
-                      label: const Text('Capture'),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
+      builder: (context) => _ChipExplanationSheet(chip: chip),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final contentWidth = (screenWidth - (kPageHorizontalPadding * 2))
-        .clamp(0.0, kMaxContentWidth);
+    final size = MediaQuery.of(context).size;
+    final contentWidth = math.min(size.width - 40, 920.0);
 
     return Scaffold(
       body: Container(
@@ -397,206 +360,178 @@ class _LiveFeedScreenState extends State<LiveFeedScreen>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [kPageBgGradientStart, kPageBgGradientEnd],
+            colors: [kBackgroundGradientStart, kBackgroundGradientEnd],
           ),
         ),
         child: SafeArea(
-          child: SingleChildScrollView(
-            child: Center(
-              child: SizedBox(
-                width: contentWidth,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: kGapM),
-                    _buildAppBar(),
-                    const SizedBox(height: kGapL),
-                    _CameraFeedCard(
-                      controller: _cameraCardController,
-                      selectedZone: _selectedZone,
-                      featureChips: _featureChips,
-                      onZoneTap: _showZoneSelector,
-                      onThumbnailTap: _showThumbnailDetail,
-                    ),
-                    const SizedBox(height: kGapL),
-                    _buildSectionHeading('Activity Timeline'),
-                    const SizedBox(height: kGapM),
-                    ..._timelineItems.asMap().entries.map((entry) {
-                      return _TimelineItem(
-                        item: entry.value,
-                        index: entry.key,
-                        controller: _timelineController,
-                        onTap: () => context.push('/session/${entry.value.id}'),
-                      );
-                    }),
-                    const SizedBox(height: kGapL),
-                    _buildSectionHeading('Alert Settings'),
-                    const SizedBox(height: kGapM),
-                    ..._alertSettings.asMap().entries.map((entry) {
-                      return _AlertToggleRow(
-                        setting: entry.value,
-                        onToggle: () => _toggleAlertSetting(entry.key),
-                      );
-                    }),
-                    const SizedBox(height: kGapL),
-                    _buildSectionHeading('Current Status'),
-                    const SizedBox(height: kGapM),
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: kCardBackgroundWhite,
-                        borderRadius: BorderRadius.circular(kCardRadius),
-                        boxShadow: const [kCardShadow],
-                      ),
-                      child: Column(
-                        children: _statusData.asMap().entries.map((entry) {
-                          return Padding(
-                            padding: EdgeInsets.only(
-                              bottom: entry.key < _statusData.length - 1
-                                  ? kGapM
-                                  : 0,
-                            ),
-                            child: _StatusBar(
-                              data: entry.value,
-                              controller: _statusController,
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    const SizedBox(height: kGapL),
-                    _buildSectionHeading('Today\'s Insights'),
-                    const SizedBox(height: kGapM),
-                    _InsightsCard(insights: _insights),
-                    const SizedBox(height: kGapL),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAppBar() {
-    return Row(
-      children: [
-        GestureDetector(
-          onTap: () => context.pop(),
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.8),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child:
-                const Icon(Icons.arrow_back, color: kHeadlineColor, size: 24),
-          ),
-        ),
-        const SizedBox(width: kGapM),
-        const Expanded(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Live Monitoring',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  color: kHeadlineColor,
-                ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                'AI-powered wellbeing insights',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                  color: kSubtextColor,
+              _AppBarRow(onBackPressed: () => context.pop()),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: kPagePadding),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: contentWidth),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: kGapM),
+                          _CameraFeedCard(
+                            selectedZone: _selectedZone,
+                            onZoneChange: _changeZone,
+                            onThumbnailTap: _onThumbnailTap,
+                            onChipTap: _onChipTap,
+                            animationController: _cameraFeedController,
+                          ),
+                          const SizedBox(height: kGapL),
+                          _ActivityTimeline(
+                            items: kTimelineItems,
+                            onItemTap: _onTimelineItemTap,
+                            animationController: _timelineController,
+                          ),
+                          const SizedBox(height: kGapL),
+                          _AlertSettings(
+                            settings: _alertSettings,
+                            onToggle: _onToggleAlert,
+                          ),
+                          const SizedBox(height: kGapL),
+                          _CurrentStatus(
+                            metrics: kStatusMetrics,
+                            animationController: _statusBarController,
+                          ),
+                          const SizedBox(height: kGapL),
+                          const _TodaysInsights(insights: kTodaysInsights),
+                          const SizedBox(height: kGapL * 2),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
         ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: kLiveBadgeBg,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: kLiveDotColor,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 6),
-              const Text(
-                'Live',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: kLiveDotColor,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSectionHeading(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.w600,
-        color: kHeadlineColor,
       ),
     );
   }
 }
 
+// ============================================================================
+// APP BAR ROW
+// ============================================================================
+
+class _AppBarRow extends StatelessWidget {
+  final VoidCallback onBackPressed;
+
+  const _AppBarRow({required this.onBackPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding:
+          const EdgeInsets.symmetric(horizontal: kPagePadding, vertical: kGapM),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.arrow_back, size: 28),
+            onPressed: onBackPressed,
+            tooltip: 'Go back',
+          ),
+          const SizedBox(width: kGapS),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Live Monitoring',
+                  style: TextStyle(
+                    color: kHeadlineColor,
+                    fontSize: kHeadlineSize,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'AI-powered wellbeing insights',
+                  style: TextStyle(
+                    color: kSubtextColor,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: kLiveBadgeBg,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: kLiveBadgeDot,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                const Text(
+                  'Live',
+                  style: TextStyle(
+                    color: kLiveBadgeDot,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// CAMERA FEED CARD
+// ============================================================================
+
 class _CameraFeedCard extends StatelessWidget {
-  final AnimationController controller;
-  final String selectedZone;
-  final List<FeatureChip> featureChips;
-  final VoidCallback onZoneTap;
+  final CameraZone selectedZone;
+  final Function(CameraZone) onZoneChange;
   final VoidCallback onThumbnailTap;
+  final Function(FeatureChip) onChipTap;
+  final AnimationController animationController;
 
   const _CameraFeedCard({
-    required this.controller,
     required this.selectedZone,
-    required this.featureChips,
-    required this.onZoneTap,
+    required this.onZoneChange,
     required this.onThumbnailTap,
+    required this.onChipTap,
+    required this.animationController,
   });
 
   @override
   Widget build(BuildContext context) {
-    final fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: controller, curve: Curves.easeOut),
-    );
-    final slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.2),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut));
-
     return FadeTransition(
-      opacity: fadeAnimation,
+      opacity: animationController,
       child: SlideTransition(
-        position: slideAnimation,
+        position: Tween<Offset>(
+          begin: const Offset(0, 0.2),
+          end: Offset.zero,
+        ).animate(CurvedAnimation(
+          parent: animationController,
+          curve: Curves.easeOut,
+        )),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(kGapM),
           decoration: BoxDecoration(
-            color: kCardBackgroundWhite,
-            borderRadius: BorderRadius.circular(kCardRadius),
+            color: kCardBackground,
+            borderRadius: BorderRadius.circular(kCardRadiusLarge),
             boxShadow: const [kCardShadow],
           ),
           child: Column(
@@ -604,41 +539,49 @@ class _CameraFeedCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.videocam, color: kAccentBlue, size: 24),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: kAccentBlue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.videocam,
+                        color: kAccentBlue, size: 24),
+                  ),
                   const SizedBox(width: kGapS),
                   const Text(
                     'Camera Feed',
                     style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
                       color: kHeadlineColor,
+                      fontSize: kSectionHeadingSize,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(width: kGapS),
+                  const Spacer(),
                   Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: kLiveBadgeBg,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
                       children: [
                         Container(
-                          width: 6,
-                          height: 6,
+                          width: 8,
+                          height: 8,
                           decoration: const BoxDecoration(
-                            color: kLiveDotColor,
+                            color: kLiveBadgeDot,
                             shape: BoxShape.circle,
                           ),
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 6),
                         const Text(
                           'Live',
                           style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: kLiveDotColor,
+                            color: kLiveBadgeDot,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -647,137 +590,71 @@ class _CameraFeedCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: kGapM),
-              Row(
-                children: [
-                  const Text(
-                    'Camera Zone',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: kSubtextColor,
-                    ),
-                  ),
-                  const SizedBox(width: kGapS),
-                  Expanded(
-                    child: Semantics(
-                      label: 'Zone selector',
-                      button: true,
-                      child: GestureDetector(
-                        onTap: onZoneTap,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: kInputBg,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  selectedZone,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: kHeadlineColor,
-                                  ),
-                                ),
-                              ),
-                              const Icon(Icons.keyboard_arrow_down,
-                                  size: 20, color: kSubtextColor),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              _ZoneSelector(
+                selectedZone: selectedZone,
+                onZoneChange: onZoneChange,
               ),
               const SizedBox(height: kGapM),
               GestureDetector(
                 onTap: onThumbnailTap,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Stack(
-                    children: [
-                      AspectRatio(
-                        aspectRatio: 16 / 9,
-                        child: Container(
-                          color: Colors.grey.shade200,
-                          child: Image.asset(
-                            'assets/designs/live_thumb.png',
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: Colors.grey.shade300,
-                                child: const Center(
-                                  child: Icon(Icons.videocam,
-                                      size: 64, color: Colors.grey),
-                                ),
-                              );
-                            },
-                          ),
+                child: Stack(
+                  children: [
+                    Container(
+                      height: 250,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(kCardRadius),
+                        image: const DecorationImage(
+                          image: AssetImage('assets/designs/live_thumb.png'),
+                          fit: BoxFit.cover,
                         ),
                       ),
-                      Positioned(
-                        top: 12,
-                        left: 12,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: featureChips.map((chip) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: chip.color,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  chip.label,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 12,
-                        right: 12,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: kTimeBadgeBg,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text(
-                            '06:37 PM',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                    ),
+                    Positioned(
+                      top: kGapS,
+                      left: kGapS,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: kLiveFeatureChips.map((chip) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: kGapXS),
+                            child: GestureDetector(
+                              onTap: () => onChipTap(chip),
+                              child: _FeatureChipWidget(chip: chip),
                             ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: kGapS,
+                      right: kGapS,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: kTimeBadgeBg.withValues(alpha: 0.9),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          '06:37 PM',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: kGapS),
               const Text(
                 'Monitoring with care',
                 style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
                   color: kSubtextColor,
+                  fontSize: 12,
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -789,123 +666,510 @@ class _CameraFeedCard extends StatelessWidget {
   }
 }
 
-class _TimelineItem extends StatelessWidget {
-  final TimelineItem item;
-  final int index;
-  final AnimationController controller;
-  final VoidCallback onTap;
+// ============================================================================
+// ZONE SELECTOR
+// ============================================================================
 
-  const _TimelineItem({
-    required this.item,
-    required this.index,
-    required this.controller,
-    required this.onTap,
+class _ZoneSelector extends StatelessWidget {
+  final CameraZone selectedZone;
+  final Function(CameraZone) onZoneChange;
+
+  const _ZoneSelector({
+    required this.selectedZone,
+    required this.onZoneChange,
   });
 
   @override
   Widget build(BuildContext context) {
-    final fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: controller,
-        curve: Interval(
-          index * 0.1,
-          (index * 0.1) + 0.4,
-          curve: Curves.easeOut,
+    return Row(
+      children: [
+        const Text(
+          'Camera Zone',
+          style: TextStyle(
+            color: kSubtextColor,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
         ),
-      ),
-    );
-    final slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.1),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: controller,
-        curve: Interval(
-          index * 0.1,
-          (index * 0.1) + 0.4,
-          curve: Curves.easeOut,
-        ),
-      ),
-    );
-
-    return FadeTransition(
-      opacity: fadeAnimation,
-      child: SlideTransition(
-        position: slideAnimation,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: kGapS),
+        const SizedBox(width: kGapM),
+        Expanded(
           child: GestureDetector(
-            onTap: onTap,
+            onTap: () => _showZonePicker(context),
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: kCardBackgroundWhite,
-                borderRadius: BorderRadius.circular(kCardRadius),
-                boxShadow: const [kCardShadow],
+                color: kInputBg,
+                borderRadius: BorderRadius.circular(kInputRadius),
               ),
               child: Row(
                 children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: const BoxDecoration(
-                      color: kInputBg,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        item.emoji,
-                        style: const TextStyle(fontSize: 20),
+                  Text(
+                    selectedZone.icon,
+                    style: const TextStyle(fontSize: 20),
+                  ),
+                  const SizedBox(width: kGapS),
+                  Expanded(
+                    child: Text(
+                      selectedZone.name,
+                      style: const TextStyle(
+                        color: kHeadlineColor,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
-                  const SizedBox(width: kGapM),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              item.time,
-                              style: const TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: kAccentBlue,
-                              ),
-                            ),
-                            const SizedBox(width: kGapS),
-                            Expanded(
-                              child: Text(
-                                item.title,
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: kHeadlineColor,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          item.description,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: kSubtextColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Icon(Icons.chevron_right,
-                      color: kSubtextColor, size: 24),
+                  const Icon(Icons.arrow_drop_down, color: kSubtextColor),
                 ],
               ),
             ),
           ),
         ),
+      ],
+    );
+  }
+
+  void _showZonePicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(kCardRadiusLarge)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(kGapM),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Select Camera Zone',
+              style: TextStyle(
+                color: kHeadlineColor,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: kGapM),
+            ...kCameraZones.map((zone) {
+              final isSelected = zone.id == selectedZone.id;
+              return ListTile(
+                leading: Text(
+                  zone.icon,
+                  style: const TextStyle(fontSize: 28),
+                ),
+                title: Text(
+                  zone.name,
+                  style: TextStyle(
+                    color: isSelected ? kPrimaryGradientStart : kHeadlineColor,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  ),
+                ),
+                trailing: isSelected
+                    ? const Icon(Icons.check_circle,
+                        color: kPrimaryGradientStart)
+                    : null,
+                onTap: () {
+                  onZoneChange(zone);
+                  Navigator.pop(context);
+                },
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// FEATURE CHIP WIDGET
+// ============================================================================
+
+class _FeatureChipWidget extends StatelessWidget {
+  final FeatureChip chip;
+
+  const _FeatureChipWidget({required this.chip});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: chip.color.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: chip.color, width: 1.5),
+      ),
+      child: Text(
+        chip.label,
+        style: TextStyle(
+          color: chip.color,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// LIVE FEED MODAL
+// ============================================================================
+
+class _LiveFeedModal extends StatelessWidget {
+  final CameraZone zone;
+
+  const _LiveFeedModal({required this.zone});
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.all(kGapM),
+        decoration: BoxDecoration(
+          color: kCardBackground,
+          borderRadius: BorderRadius.circular(kCardRadiusLarge),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Text(
+                  '${zone.icon} ${zone.name}',
+                  style: const TextStyle(
+                    color: kHeadlineColor,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: kGapM),
+            Container(
+              height: 300,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(kCardRadius),
+                image: const DecorationImage(
+                  image: AssetImage('assets/designs/live_thumb.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(height: kGapM),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _ModalButton(
+                  icon: Icons.play_arrow,
+                  label: 'Play',
+                  onPressed: () {
+                    // TODO: Implement live stream playback
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Live stream playback')),
+                    );
+                  },
+                ),
+                const SizedBox(width: kGapM),
+                _ModalButton(
+                  icon: Icons.camera_alt,
+                  label: 'Snapshot',
+                  onPressed: () {
+                    // TODO: Capture and save snapshot
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Snapshot captured')),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ModalButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onPressed;
+
+  const _ModalButton({
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon),
+      label: Text(label),
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kInputRadius),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// CHIP EXPLANATION SHEET
+// ============================================================================
+
+class _ChipExplanationSheet extends StatelessWidget {
+  final FeatureChip chip;
+
+  const _ChipExplanationSheet({required this.chip});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(kGapM),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              _FeatureChipWidget(chip: chip),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+          const SizedBox(height: kGapM),
+          Text(
+            chip.label,
+            style: const TextStyle(
+              color: kHeadlineColor,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: kGapS),
+          Text(
+            _getChipExplanation(chip.label),
+            style: const TextStyle(
+              color: kSubtextColor,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: kGapM),
+        ],
+      ),
+    );
+  }
+
+  String _getChipExplanation(String label) {
+    switch (label) {
+      case 'Smiling':
+        return 'AI has detected facial expressions indicating happiness and joy. This is a positive emotional indicator.';
+      case 'Calm':
+        return 'Current activity shows peaceful, relaxed behavior with low stress markers.';
+      case 'Group Activity':
+        return 'Multiple individuals detected engaging in collaborative or social interaction.';
+      default:
+        return 'AI-detected feature from video analysis.';
+    }
+  }
+}
+
+// ============================================================================
+// ACTIVITY TIMELINE
+// ============================================================================
+
+class _ActivityTimeline extends StatelessWidget {
+  final List<TimelineItem> items;
+  final Function(TimelineItem) onItemTap;
+  final AnimationController animationController;
+
+  const _ActivityTimeline({
+    required this.items,
+    required this.onItemTap,
+    required this.animationController,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(kGapM),
+      decoration: BoxDecoration(
+        color: kCardBackground,
+        borderRadius: BorderRadius.circular(kCardRadiusLarge),
+        boxShadow: const [kCardShadow],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Activity Timeline',
+            style: TextStyle(
+              color: kHeadlineColor,
+              fontSize: kSectionHeadingSize,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: kGapM),
+          ...items.asMap().entries.map((entry) {
+            return TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: Duration(milliseconds: 300 + (entry.key * 80)),
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(20 * (1 - value), 0),
+                    child: child,
+                  ),
+                );
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: kGapS),
+                child: _TimelineItemWidget(
+                  item: entry.value,
+                  onTap: () => onItemTap(entry.value),
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+class _TimelineItemWidget extends StatelessWidget {
+  final TimelineItem item;
+  final VoidCallback onTap;
+
+  const _TimelineItemWidget({
+    required this.item,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(kGapS),
+        decoration: BoxDecoration(
+          color: kInputBg,
+          borderRadius: BorderRadius.circular(kInputRadius),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Center(
+                child: Text(
+                  item.emoji,
+                  style: const TextStyle(fontSize: 20),
+                ),
+              ),
+            ),
+            const SizedBox(width: kGapS),
+            Text(
+              item.time,
+              style: const TextStyle(
+                color: kSubtextColor,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(width: kGapS),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    item.title,
+                    style: const TextStyle(
+                      color: kHeadlineColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    item.description,
+                    style: const TextStyle(
+                      color: kSubtextColor,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: kSubtextColor),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// ALERT SETTINGS
+// ============================================================================
+
+class _AlertSettings extends StatelessWidget {
+  final List<AlertSetting> settings;
+  final Function(AlertSetting, bool) onToggle;
+
+  const _AlertSettings({
+    required this.settings,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(kGapM),
+      decoration: BoxDecoration(
+        color: kCardBackground,
+        borderRadius: BorderRadius.circular(kCardRadiusLarge),
+        boxShadow: const [kCardShadow],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Alert Settings',
+            style: TextStyle(
+              color: kHeadlineColor,
+              fontSize: kSectionHeadingSize,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: kGapM),
+          ...settings.map((setting) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: kGapS),
+              child: _AlertToggleRow(
+                setting: setting,
+                onToggle: (value) => onToggle(setting, value),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }
@@ -913,7 +1177,7 @@ class _TimelineItem extends StatelessWidget {
 
 class _AlertToggleRow extends StatelessWidget {
   final AlertSetting setting;
-  final VoidCallback onToggle;
+  final Function(bool) onToggle;
 
   const _AlertToggleRow({
     required this.setting,
@@ -922,71 +1186,107 @@ class _AlertToggleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: kGapS),
-      child: Semantics(
-        label: '${setting.title} toggle',
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: kCardBackgroundWhite,
-            borderRadius: BorderRadius.circular(kCardRadius),
-            boxShadow: const [kCardShadow],
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      setting.title,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: kHeadlineColor,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      setting.description,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
-                        color: kSubtextColor,
-                      ),
-                    ),
-                  ],
+    return Container(
+      padding: const EdgeInsets.all(kGapS),
+      decoration: BoxDecoration(
+        color: kInputBg,
+        borderRadius: BorderRadius.circular(kInputRadius),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  setting.title,
+                  style: const TextStyle(
+                    color: kHeadlineColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              Switch(
-                value: setting.enabled,
-                onChanged: (_) => onToggle(),
-                activeThumbColor: kLiveDotColor,
-              ),
-            ],
+                Text(
+                  setting.description,
+                  style: const TextStyle(
+                    color: kSubtextColor,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+          Switch(
+            value: setting.enabled,
+            onChanged: onToggle,
+            activeThumbColor: kFeatureChipPurple,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// CURRENT STATUS
+// ============================================================================
+
+class _CurrentStatus extends StatelessWidget {
+  final List<StatusMetric> metrics;
+  final AnimationController animationController;
+
+  const _CurrentStatus({
+    required this.metrics,
+    required this.animationController,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(kGapM),
+      decoration: BoxDecoration(
+        color: kCardBackground,
+        borderRadius: BorderRadius.circular(kCardRadiusLarge),
+        boxShadow: const [kCardShadow],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Current Status',
+            style: TextStyle(
+              color: kHeadlineColor,
+              fontSize: kSectionHeadingSize,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: kGapM),
+          ...metrics.map((metric) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: kGapM),
+              child: _StatusBar(
+                metric: metric,
+                animationController: animationController,
+              ),
+            );
+          }),
+        ],
       ),
     );
   }
 }
 
 class _StatusBar extends StatelessWidget {
-  final StatusData data;
-  final AnimationController controller;
+  final StatusMetric metric;
+  final AnimationController animationController;
 
   const _StatusBar({
-    required this.data,
-    required this.controller,
+    required this.metric,
+    required this.animationController,
   });
 
   @override
   Widget build(BuildContext context) {
-    final animation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: controller, curve: Curves.easeOut),
-    );
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -994,47 +1294,35 @@ class _StatusBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              data.label,
+              metric.label,
               style: const TextStyle(
+                color: kSubtextColor,
                 fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: kHeadlineColor,
+                fontWeight: FontWeight.w500,
               ),
             ),
             Text(
-              data.value,
+              metric.displayValue,
               style: TextStyle(
-                fontSize: 13,
+                color: metric.color,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: data.color,
               ),
             ),
           ],
         ),
         const SizedBox(height: kGapXS),
         AnimatedBuilder(
-          animation: animation,
+          animation: animationController,
           builder: (context, child) {
-            return Stack(
-              children: [
-                Container(
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: kInputBg,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-                FractionallySizedBox(
-                  widthFactor: data.progress * animation.value,
-                  child: Container(
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: data.color,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ),
-              ],
+            return ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: LinearProgressIndicator(
+                value: metric.value * animationController.value,
+                backgroundColor: metric.color.withValues(alpha: 0.1),
+                valueColor: AlwaysStoppedAnimation<Color>(metric.color),
+                minHeight: 8,
+              ),
             );
           },
         ),
@@ -1043,66 +1331,79 @@ class _StatusBar extends StatelessWidget {
   }
 }
 
-class _InsightsCard extends StatelessWidget {
-  final List<Map<String, String>> insights;
+// ============================================================================
+// TODAY'S INSIGHTS
+// ============================================================================
 
-  const _InsightsCard({required this.insights});
+class _TodaysInsights extends StatelessWidget {
+  final List<InsightItem> insights;
+
+  const _TodaysInsights({required this.insights});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(kGapM),
       decoration: BoxDecoration(
-        color: kInsightsCardBg,
-        borderRadius: BorderRadius.circular(kCardRadius),
-        boxShadow: const [kCardShadow],
+        color: kLiveBadgeBg,
+        borderRadius: BorderRadius.circular(kCardRadiusLarge),
+        border:
+            Border.all(color: kLiveBadgeDot.withValues(alpha: 0.2), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: insights.map((insight) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: kGapM),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: const BoxDecoration(
-                    color: kLiveDotColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.check, color: Colors.white, size: 16),
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.insights, color: kLiveBadgeDot, size: 24),
+              SizedBox(width: kGapS),
+              Text(
+                'Today\'s Insights',
+                style: TextStyle(
+                  color: kHeadlineColor,
+                  fontSize: kSectionHeadingSize,
+                  fontWeight: FontWeight.w600,
                 ),
-                const SizedBox(width: kGapS),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        insight['title']!,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: kHeadlineColor,
+              ),
+            ],
+          ),
+          const SizedBox(height: kGapM),
+          ...insights.map((insight) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: kGapS),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.check_circle,
+                      color: kLiveBadgeDot, size: 20),
+                  const SizedBox(width: kGapS),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          insight.title,
+                          style: const TextStyle(
+                            color: kHeadlineColor,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        insight['description']!,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
-                          color: kSubtextColor,
+                        Text(
+                          insight.description,
+                          style: const TextStyle(
+                            color: kSubtextColor,
+                            fontSize: 14,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
+                ],
+              ),
+            );
+          }),
+        ],
       ),
     );
   }

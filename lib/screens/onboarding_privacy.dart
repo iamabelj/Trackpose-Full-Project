@@ -153,7 +153,7 @@ class _OnboardingPrivacyState extends State<OnboardingPrivacy>
                                       ),
                                     ],
                                   ),
-                                  child: Icon(
+                                  child: const Icon(
                                     Icons.verified_user,
                                     size: 50,
                                     color: AppColors.successColor,
@@ -285,7 +285,7 @@ class _OnboardingPrivacyState extends State<OnboardingPrivacy>
               ),
               child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.check_circle,
                     color: AppColors.successColor,
                     size: 24,
@@ -294,7 +294,7 @@ class _OnboardingPrivacyState extends State<OnboardingPrivacy>
                   Expanded(
                     child: Text(
                       text,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: AppTypography.body2,
                         fontWeight: FontWeight.w600,
                         color: AppColors.headlineColor,

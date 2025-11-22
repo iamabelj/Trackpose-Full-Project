@@ -218,7 +218,7 @@ class _OnboardingHowItWorks1State extends State<OnboardingHowItWorks1>
                   height: 120,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: LinearGradient(
+                    gradient: const LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
@@ -234,7 +234,7 @@ class _OnboardingHowItWorks1State extends State<OnboardingHowItWorks1>
                       ),
                     ],
                   ),
-                  child: Icon(
+                  child: const Icon(
                     Icons.psychology_outlined,
                     size: 64,
                     color: Colors.white,
@@ -300,7 +300,7 @@ class _OnboardingHowItWorks1State extends State<OnboardingHowItWorks1>
               const SizedBox(height: AppSpacing.m),
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: AppTypography.body3,
                   fontWeight: FontWeight.w600,
                   color: AppColors.headlineColor,

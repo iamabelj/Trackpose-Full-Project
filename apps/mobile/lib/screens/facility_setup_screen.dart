@@ -81,7 +81,7 @@ class _FacilitySetupScreenState extends ConsumerState<FacilitySetupScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: ${e.toString()}'),
-          backgroundColor: Color(0xFFFF2E7A),
+          backgroundColor: const Color(0xFFFF2E7A),
         ),
       );
     }
@@ -136,13 +136,13 @@ class _FacilitySetupScreenState extends ConsumerState<FacilitySetupScreen>
                                   shape: BoxShape.circle,
                                   gradient: LinearGradient(
                                     colors: [
-                                      Color(0xFF7A3FF2).withOpacity(0.8),
-                                      Color(0xFFFF2E7A).withOpacity(0.8),
+                                      const Color(0xFF7A3FF2).withOpacity(0.8),
+                                      const Color(0xFFFF2E7A).withOpacity(0.8),
                                     ],
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Color(0xFF7A3FF2).withOpacity(0.4 * value),
+                                      color: const Color(0xFF7A3FF2).withOpacity(0.4 * value),
                                       blurRadius: 40 * value,
                                       spreadRadius: 10 * value,
                                     ),
@@ -235,7 +235,7 @@ class _FacilitySetupScreenState extends ConsumerState<FacilitySetupScreen>
                                   const SizedBox(height: 20),
                                   // Facility Type Dropdown
                                   DropdownButtonFormField<String>(
-                                    value: _selectedType,
+                                    initialValue: _selectedType,
                                     style: const TextStyle(
                                       fontSize: 16,
                                       color: Color(0xFF0F1724),

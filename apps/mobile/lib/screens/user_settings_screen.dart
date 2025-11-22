@@ -843,7 +843,6 @@ class _SectionCard extends StatelessWidget {
   final Widget child;
 
   const _SectionCard({
-    super.key,
     required this.title,
     this.subtitle,
     this.trailing,
@@ -907,7 +906,6 @@ class _ToggleRow extends StatelessWidget {
   final ValueChanged<bool> onChanged;
 
   const _ToggleRow({
-    super.key,
     required this.title,
     required this.description,
     required this.value,
@@ -972,7 +970,6 @@ class _ThemeOption extends StatelessWidget {
   final VoidCallback onTap;
 
   const _ThemeOption({
-    super.key,
     required this.title,
     required this.description,
     required this.isSelected,
@@ -1049,7 +1046,6 @@ class _FacilityCard extends StatelessWidget {
   final VoidCallback onRemove;
 
   const _FacilityCard({
-    super.key,
     required this.facility,
     required this.onManage,
     required this.onRemove,
@@ -1174,7 +1170,6 @@ class _FaqItem extends StatelessWidget {
   final ValueChanged<bool> onExpansionChanged;
 
   const _FaqItem({
-    super.key,
     required this.faq,
     required this.onExpansionChanged,
   });
@@ -1255,7 +1250,6 @@ class _ResourceRow extends StatelessWidget {
   final VoidCallback onTap;
 
   const _ResourceRow({
-    super.key,
     required this.icon,
     required this.title,
     required this.description,

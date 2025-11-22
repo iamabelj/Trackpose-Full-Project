@@ -15,7 +15,7 @@ class _OnboardingHowItWorks1State extends State<OnboardingHowItWorks1>
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late AnimationController _iconController;
-  
+
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _iconScaleAnimation;
@@ -23,17 +23,17 @@ class _OnboardingHowItWorks1State extends State<OnboardingHowItWorks1>
   @override
   void initState() {
     super.initState();
-    
+
     _fadeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    
+
     _slideController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1000),
     );
-    
+
     _iconController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
@@ -96,7 +96,7 @@ class _OnboardingHowItWorks1State extends State<OnboardingHowItWorks1>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 60),
-                    
+
                     // Animated Icon Card
                     SlideTransition(
                       position: _slideAnimation,
@@ -105,9 +105,9 @@ class _OnboardingHowItWorks1State extends State<OnboardingHowItWorks1>
                         child: _buildIconCard(),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 40),
-                    
+
                     // Headline
                     SlideTransition(
                       position: _slideAnimation,
@@ -117,9 +117,9 @@ class _OnboardingHowItWorks1State extends State<OnboardingHowItWorks1>
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    
+
                     const SizedBox(height: AppSpacing.l),
-                    
+
                     // Subtitle
                     SlideTransition(
                       position: _slideAnimation,
@@ -132,17 +132,17 @@ class _OnboardingHowItWorks1State extends State<OnboardingHowItWorks1>
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 60),
-                    
+
                     // Feature Icons Row
                     SlideTransition(
                       position: _slideAnimation,
                       child: _buildFeatureIcons(),
                     ),
-                    
+
                     const SizedBox(height: 80),
-                    
+
                     // Next Button
                     SlideTransition(
                       position: _slideAnimation,
@@ -151,14 +151,14 @@ class _OnboardingHowItWorks1State extends State<OnboardingHowItWorks1>
                         onPressed: () => context.push('/onboarding-2'),
                       ),
                     ),
-                    
+
                     const SizedBox(height: AppSpacing.xxl),
-                    
+
                     // Page Indicators
                     Center(
                       child: _buildPageIndicators(),
                     ),
-                    
+
                     const SizedBox(height: AppSpacing.xl),
                   ],
                 ),
@@ -171,80 +171,60 @@ class _OnboardingHowItWorks1State extends State<OnboardingHowItWorks1>
   }
 
   Widget _buildIconCard() {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: const Duration(milliseconds: 2000),
-      curve: Curves.easeInOut,
-      builder: (context, value, child) {
-        return Container(
-          width: 180,
-          height: 180,
-          decoration: BoxDecoration(
-            color: AppColors.cardBackground,
-            shape: BoxShape.circle,
-            boxShadow: [
-              AppShadows.elevated,
-              BoxShadow(
-                color: AppColors.primaryPurple.withValues(alpha: 0.15 + (0.1 * value)),
-                blurRadius: 40 + (20 * value),
-                spreadRadius: 10 + (5 * value),
-              ),
-            ],
+    return Container(
+      width: 180,
+      height: 180,
+      decoration: BoxDecoration(
+        color: AppColors.cardBackground,
+        shape: BoxShape.circle,
+        boxShadow: [
+          AppShadows.elevated,
+          BoxShadow(
+            color: AppColors.primaryPurple.withValues(alpha: 0.1),
+            blurRadius: 40,
+            spreadRadius: 10,
           ),
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              // Animated outer ring
-              Transform.rotate(
-                angle: value * 6.28, // Full rotation
-                child: Container(
-                  width: 160,
-                  height: 160,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColors.primaryPurple.withValues(alpha: 0.3),
-                      width: 2,
-                    ),
-                  ),
-                ),
+        ],
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Outer ring animation
+          Container(
+            width: 160,
+            height: 160,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColors.primaryPurple.withValues(alpha: 0.2),
+                width: 2,
               ),
-              
-              // Inner gradient circle with pulse
-              Transform.scale(
-                scale: 1.0 + (0.05 * value),
-                child: Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        AppColors.primaryPurple,
-                        AppColors.primaryPink,
-                      ],
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryPink.withValues(alpha: 0.3),
-                        blurRadius: 20,
-                        spreadRadius: 5,
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.psychology_outlined,
-                    size: 64,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-        );
-      },
+
+          // Inner gradient circle
+          Container(
+            width: 120,
+            height: 120,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColors.primaryPurple,
+                  AppColors.primaryPink,
+                ],
+              ),
+            ),
+            child: const Icon(
+              Icons.psychology_outlined,
+              size: 64,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -300,7 +280,7 @@ class _OnboardingHowItWorks1State extends State<OnboardingHowItWorks1>
               const SizedBox(height: AppSpacing.m),
               Text(
                 label,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: AppTypography.body3,
                   fontWeight: FontWeight.w600,
                   color: AppColors.headlineColor,

@@ -906,7 +906,6 @@ class _ToggleRow extends StatelessWidget {
   final ValueChanged<bool> onChanged;
 
   const _ToggleRow({
-
     required this.title,
     required this.description,
     required this.value,
@@ -1047,7 +1046,6 @@ class _FacilityCard extends StatelessWidget {
   final VoidCallback onRemove;
 
   const _FacilityCard({
-
     required this.facility,
     required this.onManage,
     required this.onRemove,
@@ -1172,7 +1170,6 @@ class _FaqItem extends StatelessWidget {
   final ValueChanged<bool> onExpansionChanged;
 
   const _FaqItem({
-
     required this.faq,
     required this.onExpansionChanged,
   });
@@ -1253,7 +1250,6 @@ class _ResourceRow extends StatelessWidget {
   final VoidCallback onTap;
 
   const _ResourceRow({
-
     required this.icon,
     required this.title,
     required this.description,
@@ -1316,4 +1312,3 @@ class _ResourceRow extends StatelessWidget {
     );
   }
 }
-

@@ -249,11 +249,11 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
                             decoration: BoxDecoration(
                               color: _kCardBackground,
                               borderRadius: BorderRadius.circular(24),
-                              boxShadow: [
+                              boxShadow: const [
                                 BoxShadow(
-                                  color: const Color.fromRGBO(15, 23, 36, 0.08),
+                                  color: Color.fromRGBO(15, 23, 36, 0.08),
                                   blurRadius: 40,
-                                  offset: const Offset(0, 10),
+                                  offset: Offset(0, 10),
                                 ),
                               ],
                             ),
@@ -340,7 +340,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
                           // Back to Login
                           TextButton(
                             onPressed: () => context.go('/login'),
-                            child: Row(
+                            child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
@@ -348,7 +348,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
                                   size: 18,
                                   color: _kPrimaryPurple,
                                 ),
-                                const SizedBox(width: 6),
+                                SizedBox(width: 6),
                                 Text(
                                   'Back to Login',
                                   style: TextStyle(
@@ -386,7 +386,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
                                       color: _kSuccessColor.withValues(alpha: 0.1),
                                       shape: BoxShape.circle,
                                     ),
-                                    child: Icon(
+                                    child: const Icon(
                                       Icons.check_circle_rounded,
                                       size: 50,
                                       color: _kSuccessColor,

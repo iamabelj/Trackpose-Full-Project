@@ -236,9 +236,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         borderRadius: BorderRadius.circular(AppRadius.medium),
                         border: Border.all(color: AppColors.borderColor),
                       ),
-                      child: Column(
+                      child: const Column(
                         children: [
-                          const Text(
+                          Text(
                             'Test Credentials',
                             style: TextStyle(
                               fontSize: AppTypography.caption,
@@ -246,15 +246,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               color: AppColors.headlineColor,
                             ),
                           ),
-                          const SizedBox(height: AppSpacing.xs),
-                          const Text(
+                          SizedBox(height: AppSpacing.xs),
+                          Text(
                             'admin@trackpose.test',
                             style: TextStyle(
                               fontSize: AppTypography.small,
                               color: AppColors.subtextColor,
                             ),
                           ),
-                          const Text(
+                          Text(
                             'Admin1234!',
                             style: TextStyle(
                               fontSize: AppTypography.small,

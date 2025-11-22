@@ -33,7 +33,7 @@ const _kGapM = 20.0;
 const _kGapL = 28.0;
 
 class ExternalFacilityScreen extends StatefulWidget {
-  const ExternalFacilityScreen({Key? key}) : super(key: key);
+  const ExternalFacilityScreen({super.key});
 
   @override
   State<ExternalFacilityScreen> createState() => _ExternalFacilityScreenState();
@@ -152,9 +152,9 @@ class _ExternalFacilityScreenState extends State<ExternalFacilityScreen>
                         Container(
                           width: 72,
                           height: 72,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            gradient: const LinearGradient(
+                            gradient: LinearGradient(
                               colors: [_kCtaGradientStart, _kCtaGradientEnd],
                             ),
                           ),
@@ -187,9 +187,9 @@ class _ExternalFacilityScreenState extends State<ExternalFacilityScreen>
                         const SizedBox(height: _kGapL),
 
                         // Access code input
-                        Align(
+                        const Align(
                           alignment: Alignment.centerLeft,
-                          child: const Text(
+                          child: Text(
                             'Facility Access Code',
                             style: TextStyle(
                               fontSize: 14,
@@ -419,7 +419,7 @@ class _NumberedInfoCard extends StatelessWidget {
         Container(
           width: 24,
           height: 24,
-          decoration: BoxDecoration(color: _kLinkBlue, shape: BoxShape.circle),
+          decoration: const BoxDecoration(color: _kLinkBlue, shape: BoxShape.circle),
           alignment: Alignment.center,
           child: Text(
             '$number',
@@ -451,11 +451,11 @@ class _PrivacyPanel extends StatelessWidget {
         color: _kPrivacyBg,
         borderRadius: BorderRadius.circular(_kPrivacyRadius),
       ),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            children: const [
+            children: [
               Icon(Icons.shield, color: _kCheckColor, size: 20),
               SizedBox(width: _kGapXS),
               Text(
@@ -468,13 +468,13 @@ class _PrivacyPanel extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: _kGapXS),
-          const Text(
+          SizedBox(height: _kGapXS),
+          Text(
             "You will only see your own child's profiles and activities. All access is logged and monitored by the facility.",
             style: TextStyle(fontSize: 13, color: _kBodyColor),
           ),
-          const SizedBox(height: _kGapXS),
-          const Text(
+          SizedBox(height: _kGapXS),
+          Text(
             'Facility staff will be notified of your connection request.',
             style: TextStyle(
               fontSize: 12,

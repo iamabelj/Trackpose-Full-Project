@@ -295,7 +295,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         ],
                       ),
                       const SizedBox(height: AppSpacing.xs),
-                      Text(
+                      const Text(
                         'Use 8+ characters with a mix of letters, numbers & symbols',
                         style: TextStyle(
                           fontSize: AppTypography.small,
@@ -337,7 +337,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     const SizedBox(height: AppSpacing.l),
 
                     // Terms Text
-                    Text(
+                    const Text(
                       'By creating an account, you agree to our Terms of Service and Privacy Policy',
                       style: TextStyle(
                         fontSize: AppTypography.small,

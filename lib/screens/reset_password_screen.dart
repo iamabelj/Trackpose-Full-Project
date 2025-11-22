@@ -252,15 +252,15 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
                                 color: _kSuccessColor.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child: Column(
+                              child: const Column(
                                 children: [
                                   Icon(
                                     Icons.check_circle_rounded,
                                     size: 64,
                                     color: _kSuccessColor,
                                   ),
-                                  const SizedBox(height: 16),
-                                  const Text(
+                                  SizedBox(height: 16),
+                                  Text(
                                     'Password Reset Successful!',
                                     style: TextStyle(
                                       fontSize: 20,
@@ -269,8 +269,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
-                                  const SizedBox(height: 8),
-                                  const Text(
+                                  SizedBox(height: 8),
+                                  Text(
                                     'Redirecting to login...',
                                     style: TextStyle(
                                       fontSize: 14,

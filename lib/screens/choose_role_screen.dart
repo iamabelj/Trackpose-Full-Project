@@ -75,7 +75,7 @@ class _ChooseRoleScreenState extends State<ChooseRoleScreen> {
                   const SizedBox(height: 6),
                   Text(
                     desc,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: AppTypography.body3,
                       fontWeight: FontWeight.w400,
                       color: AppColors.subtextColor,
@@ -93,7 +93,7 @@ class _ChooseRoleScreenState extends State<ChooseRoleScreen> {
               child: Container(
                 width: 28,
                 height: 28,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: AppColors.primaryPurple,
                   shape: BoxShape.circle,
                 ),
