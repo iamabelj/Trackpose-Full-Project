@@ -1,5 +1,6 @@
 # Multi-stage Dockerfile for TrackPose Backend
 # Optimized for production deployment on Render
+# Cache bust: 2025-11-22-16:14
 
 # =============================================================================
 # Stage 1: Builder
@@ -11,14 +12,14 @@ WORKDIR /app
 # Install build dependencies
 RUN apk add --no-cache python3 make g++
 
-# Copy package files
+# Copy package files first (for layer caching)
 COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install all dependencies (including dev dependencies for build)
-RUN npm ci
+RUN npm ci --no-audit --no-fund
 
-# Copy source code
+# Copy source code (this invalidates cache if source changes)
 COPY tsconfig.json ./
 COPY src ./src
 
@@ -27,6 +28,9 @@ RUN npx prisma generate
 
 # Build TypeScript to JavaScript
 RUN npm run build
+
+# Verify build output exists
+RUN ls -la dist/
 
 # =============================================================================
 # Stage 2: Production (DEFAULT TARGET)
