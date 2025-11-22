@@ -1,0 +1,12 @@
+Design: how_it_works_2.png (Second onboarding slide / privacy and security)
+
+Prompt for Copilot Chat:
+---------------------------------------------------------
+Create lib/screens/onboarding_privacy.dart from how_it_works_2.png.
+Requirements:
+- Card with security icons and bullet rows (GDPR, Enterprise-grade, End-to-end).
+- Big title "Your Privacy Matters" and subtitle matching: 'GDPR-compliant, enterprise-grade security — protecting your data and your loved ones\' moments.'
+- Bottom-right circular gradient "Next" button and pager indicators at bottom-left.
+- Use the TrackPose color palette (purple -> pink gradient for CTA). Provide TODO comments for exact color tokens (placeholders ok).
+- Output a single Dart file.
+---------------------------------------------------------

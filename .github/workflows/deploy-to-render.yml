@@ -1,0 +1,11 @@
+name: Deploy to Render
+on:
+  push:
+    branches: [ main ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy (manual step)
+        run: echo "Configure Render deploy or use RENDER_API_KEY in secrets"

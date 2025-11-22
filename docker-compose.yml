@@ -1,0 +1,214 @@
+# Docker Compose for Local Development
+# This setup is for LOCAL DEVELOPMENT ONLY - DO NOT use in production
+# 
+# Usage:
+#   docker-compose up -d        # Start all services in background
+#   docker-compose logs -f      # View logs
+#   docker-compose down         # Stop all services
+#   docker-compose down -v      # Stop and remove volumes (clears database)
+
+version: '3.8'
+
+services:
+  # --------------------------------------------------------------------------
+  # MySQL Database (Local Development)
+  # --------------------------------------------------------------------------
+  mysql:
+    image: mysql:8.0
+    container_name: trackpose-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: trackpose
+      MYSQL_USER: trackpose
+      MYSQL_PASSWORD: trackpose_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./services/backend/prisma/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - trackpose-network
+
+  # --------------------------------------------------------------------------
+  # Backend Service (Node.js + TypeScript + Express)
+  # --------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./services/backend
+      dockerfile: Dockerfile
+      target: development  # Use development stage with hot reload
+    container_name: trackpose-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=mysql://trackpose:trackpose_password@mysql:3306/trackpose
+      - JWT_SECRET=local_dev_jwt_secret_change_in_production
+      - JWT_EXPIRES_IN=7d
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-sk_test_placeholder}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-whsec_placeholder}
+      - S3_BUCKET=${S3_BUCKET:-trackpose-local}
+      - S3_REGION=${S3_REGION:-us-east-1}
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-minioadmin}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-minioadmin}
+      - S3_ENDPOINT=${S3_ENDPOINT:-http://minio:9000}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
+      - EMAIL_FROM=dev@trackpose.local
+      - MEDIA_SERVICE_URL=http://media:8000
+      - CALLBACK_SECRET=local_dev_callback_secret
+      - PROCESSING_MODE=remote
+      - FRONTEND_URL=http://localhost:3000
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:8080
+      - ENABLE_SWAGGER=true
+      - ENABLE_RATE_LIMITING=false
+      - LOG_LEVEL=debug
+    volumes:
+      - ./services/backend/src:/app/src:ro
+      - ./services/backend/prisma:/app/prisma:ro
+      - backend_node_modules:/app/node_modules
+    depends_on:
+      mysql:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    networks:
+      - trackpose-network
+    command: npm run dev
+
+  # --------------------------------------------------------------------------
+  # Media Processing Service (Python + FastAPI)
+  # --------------------------------------------------------------------------
+  media:
+    build:
+      context: ./services/media
+      dockerfile: Dockerfile
+    container_name: trackpose-media
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - PORT=8000
+      - CALLBACK_SECRET=local_dev_callback_secret
+      - S3_BUCKET=${S3_BUCKET:-trackpose-local}
+      - S3_REGION=${S3_REGION:-us-east-1}
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID:-minioadmin}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY:-minioadmin}
+      - S3_ENDPOINT=${S3_ENDPOINT:-http://minio:9000}
+      - LOG_LEVEL=debug
+      - MAX_VIDEO_SIZE_MB=500
+      - PROCESSING_TIMEOUT_SECONDS=300
+    volumes:
+      - ./services/media/app:/app/app:ro
+      - media_temp:/tmp
+    depends_on:
+      - minio
+    networks:
+      - trackpose-network
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # --------------------------------------------------------------------------
+  # MinIO (S3-compatible object storage for local development)
+  # --------------------------------------------------------------------------
+  minio:
+    image: minio/minio:latest
+    container_name: trackpose-minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"  # MinIO Console
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    networks:
+      - trackpose-network
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # --------------------------------------------------------------------------
+  # MinIO Client (Create bucket on startup)
+  # --------------------------------------------------------------------------
+  minio-init:
+    image: minio/mc:latest
+    container_name: trackpose-minio-init
+    depends_on:
+      - minio
+    networks:
+      - trackpose-network
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb myminio/trackpose-local --ignore-existing;
+      /usr/bin/mc anonymous set download myminio/trackpose-local;
+      exit 0;
+      "
+
+# --------------------------------------------------------------------------
+# Volumes
+# --------------------------------------------------------------------------
+volumes:
+  mysql_data:
+    driver: local
+  backend_node_modules:
+    driver: local
+  media_temp:
+    driver: local
+  minio_data:
+    driver: local
+
+# --------------------------------------------------------------------------
+# Networks
+# --------------------------------------------------------------------------
+networks:
+  trackpose-network:
+    driver: bridge
+
+# --------------------------------------------------------------------------
+# USAGE NOTES
+# --------------------------------------------------------------------------
+# 
+# First-time setup:
+# 1. Copy .env.example to .env and fill in values (optional for local dev)
+# 2. Run: docker-compose up -d
+# 3. Wait for all services to be healthy
+# 4. Run migrations: cd services/backend && npx prisma migrate dev
+# 5. Generate Prisma client: npx prisma generate
+# 6. Access services:
+#    - Backend API: http://localhost:3000
+#    - Media API: http://localhost:8000
+#    - MinIO Console: http://localhost:9001 (minioadmin/minioadmin)
+#    - MySQL: localhost:3306 (trackpose/trackpose_password)
+# 
+# Development workflow:
+# - Backend code changes in src/ will auto-reload via nodemon
+# - Media service changes in app/ will auto-reload via uvicorn --reload
+# - Database changes: run prisma migrate dev in services/backend
+# 
+# Useful commands:
+# - docker-compose ps                 # Check service status
+# - docker-compose logs backend -f    # Follow backend logs
+# - docker-compose logs media -f      # Follow media logs
+# - docker-compose exec backend sh    # Shell into backend container
+# - docker-compose exec mysql mysql -u trackpose -p trackpose  # MySQL CLI
+# - docker-compose restart backend    # Restart a service
+# 
+# Clean up:
+# - docker-compose down               # Stop services
+# - docker-compose down -v            # Stop and remove volumes (clears data)
+# - docker system prune -a            # Remove all unused Docker data
+#

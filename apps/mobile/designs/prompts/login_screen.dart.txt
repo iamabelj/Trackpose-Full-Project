@@ -1,0 +1,12 @@
+Design: login_screen.png (Welcome Back / Login form)
+
+Prompt for Copilot Chat:
+---------------------------------------------------------
+Generate lib/screens/login_screen_ui.dart that replicates login_screen.png exactly.
+Requirements:
+- Title "Welcome Back" (large), subtitle "Sign in to continue monitoring".
+- Two rounded input fields with subtle gray backgrounds and inner shadows: Email and Password. Password must include a trailing eye icon to toggle visibility.
+- Right-aligned "Forgot Password?" link and a large rounded gradient "Log In" button (purple -> pink gradient). Then small "Don't have an account? Sign up" link and a GDPR-compliant badge at the bottom.
+- Validate email format and password length (>=8). On successful submit, call a stubbed provider function and navigate to '/parent-dashboard' (use go_router).
+- Output a single Dart file only. Use TODO comments where secure storage or backend calls are required.
+---------------------------------------------------------

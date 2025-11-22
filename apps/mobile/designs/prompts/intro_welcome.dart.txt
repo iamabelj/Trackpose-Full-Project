@@ -1,0 +1,15 @@
+Design: intro_welcome.png (Welcome / Get Started screen)
+
+Prompt for Copilot Chat (use "Ask about this file" with the attached image):
+---------------------------------------------------------
+Generate a Flutter screen in Dart that replicates the attached welcome/landing image (intro_welcome.png).
+Requirements:
+- File: lib/screens/intro_welcome_screen.dart
+- Use Material widgets with a modern, soft gradient background and a centered logo above headline text.
+- Headline text: "Welcome to TrackPose" (use large, bold, 34sp) and a subtitle exactly: "TrackPose helps families, caregivers, and managers monitor wellbeing with AI insights and care transparency."
+- Add a prominent rounded gradient button at the bottom: "Get Started". Also include a small "Log In" link below the button.
+- Use Riverpod for any button handlers (but you may stub providers). Use go_router route '/signup' for Get Started and '/login' for Log In.
+- Create accessible widgets, responsive layout for phones (safe-area aware).
+- Extract any repeated styles to a local Theme or constants in the file with TODO to move to a shared styles file.
+- Output a single Dart file and nothing else.
+---------------------------------------------------------

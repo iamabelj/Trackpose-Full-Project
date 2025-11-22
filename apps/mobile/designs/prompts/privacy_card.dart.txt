@@ -1,0 +1,11 @@
+Design: privacy_card.png (security/feature card)
+
+Prompt for Copilot Chat:
+---------------------------------------------------------
+Generate lib/screens/feature_privacy_card.dart based on privacy_card.png.
+Requirements:
+- Recreate the elevated rounded card with green lock icon and three colored bullet rows.
+- Keep padding and soft shadows; make the card width responsive and centered.
+- Export the card as a reusable widget `PrivacyFeatureCard` so it can be used inside onboarding screens.
+- Output single Dart file only.
+---------------------------------------------------------

@@ -1,0 +1,25 @@
+{
+  "palette": {
+    "primaryGradientStart": "#7A3FF2",
+    "primaryGradientEnd": "#FF2E7A",
+    "accent": "#00C853",
+    "bgGradientStart": "#E6F0FF",
+    "bgGradientEnd": "#FFF0E6"
+  },
+  "typography": {
+    "headline1": "34sp, weight=700",
+    "headline2": "28sp, weight=600",
+    "body": "16sp, weight=400",
+    "caption": "12sp, weight=400"
+  },
+  "spacing": {
+    "cardPadding": "24px",
+    "pagePadding": "16px",
+    "controlHeight": "56px",
+    "cornerRadius": "16px"
+  },
+  "shadows": {
+    "soft": "blur 24, offset 0, color rgba(0,0,0,0.06)",
+    "elevated": "blur 36, offset 0, color rgba(0,0,0,0.08)"
+  }
+}

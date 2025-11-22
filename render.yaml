@@ -1,0 +1,238 @@
+# Render Blueprint for TrackPose
+# This file defines all services, databases, and configurations for Render deployment
+# Reference: https://render.com/docs/blueprint-spec
+
+# ============================================================================
+# SERVICES
+# ============================================================================
+services:
+  # --------------------------------------------------------------------------
+  # Backend Service (Node.js + TypeScript + Express + Prisma)
+  # --------------------------------------------------------------------------
+  - type: web
+    name: trackpose-backend
+    runtime: docker
+    dockerfilePath: ./services/backend/Dockerfile
+    dockerContext: ./services/backend
+    plan: starter  # TODO: Change to appropriate plan (starter, standard, pro)
+    region: oregon  # TODO: Choose region closest to your users
+    branch: main
+    healthCheckPath: /api/v1/admin/system-health
+    
+    envVars:
+      # Database (linked from Render Database)
+      - key: DATABASE_URL
+        fromDatabase:
+          name: trackpose-db
+          property: connectionString
+      
+      # JWT
+      - key: JWT_SECRET
+        generateValue: true  # TODO: Or set manually in dashboard
+      - key: JWT_EXPIRES_IN
+        value: "7d"
+      - key: JWT_REFRESH_EXPIRES_IN
+        value: "30d"
+      
+      # Stripe - TODO: Set in Render Dashboard
+      - key: STRIPE_SECRET_KEY
+        sync: false  # Set manually in dashboard
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false  # Set manually in dashboard
+      - key: STRIPE_PRICE_TRIAL
+        sync: false
+      - key: STRIPE_PRICE_STANDARD
+        sync: false
+      - key: STRIPE_PRICE_PREMIUM
+        sync: false
+      - key: STRIPE_PRICE_ENTERPRISE
+        sync: false
+      
+      # S3 / Object Storage - TODO: Set in Render Dashboard
+      - key: S3_BUCKET
+        sync: false  # Set manually
+      - key: S3_REGION
+        value: "us-east-1"
+      - key: S3_ACCESS_KEY_ID
+        sync: false  # Set manually
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false  # Set manually
+      - key: S3_ENDPOINT
+        value: ""  # Leave empty for AWS S3, or set Render Object Storage endpoint
+      
+      # SendGrid - TODO: Set in Render Dashboard
+      - key: SENDGRID_API_KEY
+        sync: false  # Set manually
+      - key: EMAIL_FROM
+        value: "noreply@trackpose.com"  # TODO: Change to your verified domain
+      - key: EMAIL_FROM_NAME
+        value: "TrackPose"
+      
+      # Microservices
+      - key: MEDIA_SERVICE_URL
+        fromService:
+          type: web
+          name: trackpose-media
+          property: host
+      - key: CALLBACK_SECRET
+        generateValue: true  # Shared with media service
+      - key: PROCESSING_MODE
+        value: "remote"
+      
+      # Application
+      - key: NODE_ENV
+        value: "production"
+      - key: PORT
+        value: "3000"
+      - key: FRONTEND_URL
+        value: "https://trackpose.com"  # TODO: Change to your frontend URL
+      - key: APP_SCHEME
+        value: "trackpose"
+      - key: APP_HOST
+        value: "app"
+      
+      # Security
+      - key: CORS_ORIGINS
+        value: "https://trackpose.com,https://app.trackpose.com"  # TODO: Update
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: PASSWORD_RESET_EXPIRY
+        value: "3600"
+      - key: EMAIL_VERIFICATION_EXPIRY
+        value: "900"
+      
+      # Trial Limits
+      - key: TRIAL_MAX_PROFILES
+        value: "1"
+      - key: TRIAL_MAX_FACILITIES
+        value: "1"
+      - key: TRIAL_MAX_SESSIONS
+        value: "1"
+      - key: TRIAL_MAX_STORAGE_MB
+        value: "100"
+      
+      # Features
+      - key: ENABLE_SWAGGER
+        value: "false"  # Disabled in production for security
+      - key: ENABLE_RATE_LIMITING
+        value: "true"
+      - key: ENABLE_REQUEST_LOGGING
+        value: "true"
+      - key: FEATURE_LIVE_MONITORING
+        value: "true"
+      - key: FEATURE_AI_INSIGHTS
+        value: "true"
+      - key: FEATURE_NOTIFICATIONS
+        value: "true"
+      - key: FEATURE_REPORTS
+        value: "true"
+      
+      # Logging
+      - key: LOG_LEVEL
+        value: "info"
+      
+      # Migrations (set to true only for initial deploy or when needed)
+      - key: RUN_MIGRATIONS
+        value: "false"  # TODO: Set to "true" for first deploy, then back to "false"
+    
+    buildFilter:
+      paths:
+        - services/backend/**
+        - packages/**
+    
+    autoDeploy: true
+
+  # --------------------------------------------------------------------------
+  # Media Processing Service (Python + FastAPI + MediaPipe)
+  # --------------------------------------------------------------------------
+  - type: web
+    name: trackpose-media
+    runtime: docker
+    dockerfilePath: ./services/media/Dockerfile
+    dockerContext: ./services/media
+    plan: starter  # TODO: Change to appropriate plan; may need higher for video processing
+    region: oregon  # TODO: Same region as backend for lower latency
+    branch: main
+    healthCheckPath: /health
+    
+    envVars:
+      # Callback security (shared with backend)
+      - key: CALLBACK_SECRET
+        generateValue: true  # Must match backend CALLBACK_SECRET
+      
+      # S3 / Object Storage - TODO: Same as backend
+      - key: S3_BUCKET
+        sync: false  # Set manually to match backend
+      - key: S3_REGION
+        value: "us-east-1"
+      - key: S3_ACCESS_KEY_ID
+        sync: false  # Set manually to match backend
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false  # Set manually to match backend
+      - key: S3_ENDPOINT
+        value: ""
+      
+      # Application
+      - key: PORT
+        value: "8000"
+      - key: ENVIRONMENT
+        value: "production"
+      - key: LOG_LEVEL
+        value: "info"
+      
+      # Processing configuration
+      - key: MAX_VIDEO_SIZE_MB
+        value: "500"
+      - key: PROCESSING_TIMEOUT_SECONDS
+        value: "300"
+      - key: TEMP_STORAGE_PATH
+        value: "/tmp"
+    
+    buildFilter:
+      paths:
+        - services/media/**
+    
+    autoDeploy: true
+
+# ============================================================================
+# DATABASES
+# ============================================================================
+databases:
+  - name: trackpose-db
+    databaseName: trackpose
+    plan: starter  # TODO: Choose plan based on expected load (starter, standard, pro)
+    region: oregon  # TODO: Same region as backend
+    # MySQL 8.0 is used; specified in Render Dashboard during creation
+    # Prisma will handle schema migrations
+
+# ============================================================================
+# NOTES FOR DEPLOYMENT
+# ============================================================================
+# 
+# BEFORE DEPLOYING:
+# 1. Create a Render account and connect your GitHub repository
+# 2. Manually create MySQL database in Render Dashboard (select MySQL 8.0)
+# 3. Set up S3 bucket or Render Object Storage
+# 4. Configure all sync: false environment variables in Render Dashboard:
+#    - STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, Stripe Price IDs
+#    - S3 credentials
+#    - SENDGRID_API_KEY
+# 5. Ensure CALLBACK_SECRET is the same for both backend and media services
+# 6. Set RUN_MIGRATIONS to "true" for initial deploy, then change to "false"
+# 7. After deploy, configure Stripe webhook URL in Stripe Dashboard:
+#    https://trackpose-backend.onrender.com/api/v1/payments/webhook
+# 
+# DEPLOY METHODS:
+# - Automatic: Push to main branch (if autoDeploy: true)
+# - Manual: Click "Manual Deploy" in Render Dashboard
+# - CI/CD: Use GitHub Actions with RENDER_API_KEY (see .github/workflows/deploy-to-render.yml)
+# 
+# POST-DEPLOYMENT:
+# 1. Verify health checks are passing
+# 2. Test database connection
+# 3. Test S3 upload/download
+# 4. Test Stripe webhook with Stripe CLI or test payment
+# 5. Test email sending
+# 6. Monitor logs for any errors
+#
+# ============================================================================

@@ -1,0 +1,45 @@
+name: trackpose
+description: TrackPose mobile app - AI-powered wellbeing monitoring
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # State management
+  flutter_riverpod: ^2.4.9
+  
+  # Routing
+  go_router: ^12.1.1
+  
+  # HTTP client
+  dio: ^5.4.0
+  
+  # Secure storage
+  flutter_secure_storage: ^9.0.0
+  
+  # Camera
+  camera: ^0.10.5
+  
+  # Stripe payments
+  flutter_stripe: ^10.0.0
+  
+  # JSON serialization
+  json_annotation: ^4.8.1
+  
+  # UI
+  cupertino_icons: ^1.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  build_runner: ^2.4.7
+  json_serializable: ^6.7.1
+
+flutter:
+  uses-material-design: true

@@ -1,0 +1,375 @@
+// Prisma Schema for TrackPose
+// MySQL Database Schema with full relations
+// 
+// Run migrations:
+//   npx prisma migrate dev --name init
+//   npx prisma generate
+// 
+// Generate client:
+//   npx prisma generate
+// 
+// Deploy migrations (production):
+//   npx prisma migrate deploy
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum UserRole {
+  PARENT
+  GUARDIAN
+  FACILITY_STAFF
+  FACILITY_ADMIN
+  SYSTEM_ADMIN
+}
+
+enum FacilityType {
+  DAYCARE
+  SCHOOL
+  SENIOR_CARE
+  HOME
+  OTHER
+}
+
+enum SubscriptionPlan {
+  TRIAL
+  STANDARD
+  PREMIUM
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIAL
+  CANCELED
+  PAST_DUE
+  EXPIRED
+}
+
+enum SessionSource {
+  UPLOAD
+  LIVE
+  SCHEDULED
+}
+
+enum SessionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum EventType {
+  EMOTION_CHANGE
+  ACTIVITY_CHANGE
+  ALERT
+  MILESTONE
+  INCIDENT
+}
+
+enum EventSeverity {
+  INFO
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ReportType {
+  DAILY
+  WEEKLY
+  MONTHLY
+  CUSTOM
+  AI_INSIGHTS
+}
+
+enum ReportFormat {
+  PDF
+  CSV
+  JSON
+}
+
+// ============================================================================
+// MODELS
+// ============================================================================
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  password_hash   String
+  full_name       String
+  phone_number    String?
+  role            UserRole  @default(PARENT)
+  email_verified  Boolean   @default(false)
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+  last_login_at   DateTime?
+
+  // Relations
+  facilities          Facility[]
+  profiles            Profile[]
+  subscriptions       Subscription[]
+  access_codes        AccessCode[]
+  email_verifications EmailVerification[]
+  reports             Report[]
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+model Facility {
+  id              String        @id @default(uuid())
+  name            String
+  type            FacilityType
+  address         String?
+  city            String?
+  state           String?
+  zip_code        String?
+  country         String?       @default("US")
+  phone_number    String?
+  email           String?
+  license_number  String?
+  created_at      DateTime      @default(now())
+  updated_at      DateTime      @updatedAt
+
+  owner_id        String
+
+  // Relations
+  owner           User          @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  profiles        Profile[]
+  sessions        Session[]
+  access_codes    AccessCode[]
+
+  @@index([owner_id])
+  @@index([type])
+  @@map("facilities")
+}
+
+model Profile {
+  id              String    @id @default(uuid())
+  first_name      String
+  last_name       String
+  date_of_birth   DateTime?
+  gender          String?
+  photo_url       String?
+  notes           String?   @db.Text
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  guardian_id     String
+  facility_id     String?
+
+  // Relations
+  guardian        User      @relation(fields: [guardian_id], references: [id], onDelete: Cascade)
+  facility        Facility? @relation(fields: [facility_id], references: [id], onDelete: SetNull)
+  sessions        Session[]
+  events          Event[]
+
+  @@index([guardian_id])
+  @@index([facility_id])
+  @@map("profiles")
+}
+
+model Session {
+  id                String         @id @default(uuid())
+  title             String?
+  source            SessionSource
+  status            SessionStatus  @default(PENDING)
+  video_url         String?
+  thumbnail_url     String?
+  duration_seconds  Int?
+  file_size_bytes   BigInt?
+  started_at        DateTime       @default(now())
+  ended_at          DateTime?
+  processed_at      DateTime?
+  created_at        DateTime       @default(now())
+  updated_at        DateTime       @updatedAt
+
+  profile_id        String
+  facility_id       String?
+
+  // AI-generated fields (stored as JSON)
+  emotion_summary   Json?
+  activity_summary  Json?
+  wellbeing_score   Int?
+
+  // Relations
+  profile           Profile   @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+  facility          Facility? @relation(fields: [facility_id], references: [id], onDelete: SetNull)
+  events            Event[]
+  reports           Report[]
+
+  @@index([profile_id])
+  @@index([facility_id])
+  @@index([status])
+  @@index([source])
+  @@index([created_at])
+  @@map("sessions")
+}
+
+model Event {
+  id                String         @id @default(uuid())
+  type              EventType
+  severity          EventSeverity
+  title             String
+  description       String?        @db.Text
+  timestamp         DateTime
+  duration_seconds  Int?
+  metadata          Json?
+  acknowledged      Boolean        @default(false)
+  acknowledged_at   DateTime?
+  acknowledged_by   String?
+  created_at        DateTime       @default(now())
+
+  session_id        String
+  profile_id        String
+
+  // Relations
+  session           Session   @relation(fields: [session_id], references: [id], onDelete: Cascade)
+  profile           Profile   @relation(fields: [profile_id], references: [id], onDelete: Cascade)
+
+  @@index([session_id])
+  @@index([profile_id])
+  @@index([type])
+  @@index([severity])
+  @@index([timestamp])
+  @@map("events")
+}
+
+model Report {
+  id            String       @id @default(uuid())
+  type          ReportType
+  format        ReportFormat
+  title         String
+  description   String?      @db.Text
+  report_url    String?
+  generated_at  DateTime     @default(now())
+  start_date    DateTime
+  end_date      DateTime
+  metadata      Json?
+  created_at    DateTime     @default(now())
+
+  user_id       String
+  session_id    String?
+
+  // Relations
+  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  session       Session?  @relation(fields: [session_id], references: [id], onDelete: SetNull)
+
+  @@index([user_id])
+  @@index([session_id])
+  @@index([type])
+  @@index([generated_at])
+  @@map("reports")
+}
+
+model Subscription {
+  id                      String             @id @default(uuid())
+  plan                    SubscriptionPlan   @default(TRIAL)
+  status                  SubscriptionStatus @default(TRIAL)
+  stripe_subscription_id  String?            @unique
+  stripe_customer_id      String?
+  current_period_start    DateTime?
+  current_period_end      DateTime?
+  trial_ends_at           DateTime?
+  canceled_at             DateTime?
+  created_at              DateTime           @default(now())
+  updated_at              DateTime           @updatedAt
+
+  user_id                 String
+
+  // Relations
+  user                    User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([status])
+  @@index([plan])
+  @@index([stripe_subscription_id])
+  @@map("subscriptions")
+}
+
+model AccessCode {
+  id          String    @id @default(uuid())
+  code        String    @unique
+  expires_at  DateTime
+  used_at     DateTime?
+  created_at  DateTime  @default(now())
+
+  user_id     String
+  facility_id String
+
+  // Relations
+  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  facility    Facility @relation(fields: [facility_id], references: [id], onDelete: Cascade)
+
+  @@index([code])
+  @@index([user_id])
+  @@index([facility_id])
+  @@index([expires_at])
+  @@map("access_codes")
+}
+
+model EmailVerification {
+  id          String    @id @default(uuid())
+  user_id     String
+  code        String
+  expires_at  DateTime
+  verified_at DateTime?
+  attempts    Int       @default(0)
+  created_at  DateTime  @default(now())
+
+  // Relations
+  user        User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+  @@index([code])
+  @@index([expires_at])
+  @@map("email_verifications")
+}
+
+// ============================================================================
+// NOTES
+// ============================================================================
+// 
+// Cascading Deletes:
+// - Deleting a User cascades to Facilities, Profiles, Subscriptions, AccessCodes, EmailVerifications, Reports
+// - Deleting a Facility cascades to AccessCodes
+// - Deleting a Profile cascades to Sessions, Events
+// - Deleting a Session cascades to Events
+// 
+// SetNull behavior:
+// - Deleting a Facility sets Profile.facility_id to NULL
+// - Deleting a Session sets Report.session_id to NULL
+// 
+// Indices:
+// - Added indices on frequently queried fields
+// - Foreign keys automatically get indices
+// - Consider adding composite indices for common query patterns
+// 
+// JSON Fields:
+// - emotion_summary, activity_summary, metadata stored as JSON for flexibility
+// - These can be queried using MySQL JSON functions
+// 
+// BigInt:
+// - file_size_bytes uses BigInt for files > 2GB
+// 
+// Text fields:
+// - notes, description use @db.Text for longer content
+// 
+// Migrations:
+// - Always backup production database before running migrations
+// - Test migrations on staging environment first
+// - Use `prisma migrate dev` for development
+// - Use `prisma migrate deploy` for production
+//
