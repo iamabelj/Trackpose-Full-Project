@@ -29,14 +29,14 @@ RUN npx prisma generate
 RUN npm run build
 
 # =============================================================================
-# Stage 2: Production
+# Stage 2: Production (DEFAULT TARGET)
 # =============================================================================
-FROM node:20-alpine AS production
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Install dumb-init for proper signal handling and mysql client for healthcheck
-RUN apk add --no-cache dumb-init mysql-client
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
 
 # Set environment
 ENV NODE_ENV=production
@@ -66,63 +66,26 @@ USER nodejs
 EXPOSE 3000
 
 # Health check
-# Checks if the application responds with 200 on the health endpoint
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/api/v1/admin/system-health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Use dumb-init to handle signals properly
 ENTRYPOINT ["dumb-init", "--"]
 
-# Start command
-# If RUN_MIGRATIONS=true, run migrations before starting the server
-# WARNING: Be careful with auto-migrations in production!
-CMD ["sh", "-c", "if [ \"$RUN_MIGRATIONS\" = \"true\" ]; then echo 'Running migrations...' && npx prisma migrate deploy; fi && node dist/index.js"]
-
-# =============================================================================
-# Stage 3: Development (for local Docker Compose)
-# =============================================================================
-FROM node:20-alpine AS development
-
-WORKDIR /app
-
-# Install development tools
-RUN apk add --no-cache git mysql-client
-
-# Copy package files
-COPY package*.json ./
-
-# Install all dependencies including dev dependencies
-RUN npm install
-
-# Copy Prisma schema
-COPY prisma ./prisma/
-
-# Generate Prisma Client
-RUN npx prisma generate
-
-# Copy source code (will be mounted as volume in docker-compose)
-COPY . .
-
-# Expose port
-EXPOSE 3000
-
-# Development command with hot reload
-CMD ["npm", "run", "dev"]
+# Start command - runs compiled JavaScript, not TypeScript
+CMD ["sh", "-c", "if [ \"$RUN_MIGRATIONS\" = \"true\" ]; then echo 'Running migrations...' && npx prisma generate && npx prisma migrate deploy; fi && npx prisma generate && node dist/index.js"]
 
 # =============================================================================
 # BUILD NOTES
 # =============================================================================
 # 
-# Build for development:
-#   docker build --target development -t trackpose-backend:dev .
-# 
 # Build for production:
-#   docker build --target production -t trackpose-backend:prod .
+#   docker build -t trackpose-backend:prod .
 # 
 # Run locally:
 #   docker run -p 3000:3000 --env-file .env trackpose-backend:prod
 # 
-# Render will automatically build the 'production' stage
+# Render will automatically build this production image
 # 
 # Environment variables required:
 #   DATABASE_URL, JWT_SECRET, STRIPE_SECRET_KEY, S3_*, SENDGRID_API_KEY, etc.
